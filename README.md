@@ -6,6 +6,7 @@ GitHub 저장소를 AI 작업 운영체제처럼 쓰기 위한 템플릿입니�
 
 - `AGENTS.md`와 `harness/ai-rules.md` 기반 에이전트 운영 규칙
 - GitHub Issues 기반 AI 작업 큐
+- 에이전트가 이슈를 만들고 처리하는 단일 워크플로 문서
 - `ready-for-ai` 라벨 기반 작업 가능 상태
 - 대화 내용을 GitHub 이슈로 등록하는 CLI
 - GitHub Actions pre/post hook
@@ -108,6 +109,7 @@ scripts/init-ai-os.sh --profile ai-os.project.yml --output . --force
     └── gc-reminder.yml
 
 harness/
+├── agent-workflow.md
 ├── ai-rules.md
 ├── github-issue-protocol.md
 ├── github-mcp-protocol.md
@@ -133,9 +135,13 @@ scripts/
 
 templates/
 └── agents/
+    ├── AGENTS.md.tpl
+    ├── README.md
+    └── harness-ai-rules.md.tpl
 
 AI_OS_VERSION
 ai-os.project.example.yml
+docs/README.md
 docs/github-smoke-test.md
 install.sh
 skills/README.md
@@ -156,6 +162,8 @@ skills/README.md
 ## GitHub Issue 작업 큐
 
 이 템플릿의 작업 큐 정본은 GitHub Issues입니다.
+
+에이전트가 처음 읽을 단일 절차 문서는 `harness/agent-workflow.md`입니다. 이 문서는 대화에서 이슈를 만들고, `ready-for-ai` 작업을 선택하고, 수락 기준과 검증 증거로 완료 보고하는 전체 흐름을 설명합니다.
 
 작업 가능 이슈:
 
@@ -254,6 +262,12 @@ GitHub MCP 또는 Connector가 연결되어 있으면 같은 규칙을 유지한
 
 세부 규칙은 `harness/github-mcp-protocol.md`를 따릅니다.
 
+## docs와 templates
+
+`docs/`는 설치된 프로젝트에서 계속 참고할 운영 문서를 둡니다. 현재는 GitHub 원격 smoke test 절차인 `docs/github-smoke-test.md`와 폴더 정책을 설명하는 `docs/README.md`가 있습니다.
+
+`templates/agents/`는 `AGENTS.md`와 `harness/ai-rules.md` 생성 결과의 기준 틀을 둡니다. 현재 생성은 `scripts/init-ai-os.sh`가 직접 수행하지만, `.tpl` 파일은 어떤 섹션이 반드시 있어야 하는지 보여주는 계약 문서입니다.
+
 ## 기존 프로젝트 설치
 
 ```bash
@@ -307,6 +321,20 @@ scripts/upgrade-ai-os.sh --target /path/to/project
 ```bash
 scripts/upgrade-ai-os.sh --target /path/to/project --force
 ```
+
+## 버전 정책
+
+`AI_OS_VERSION`은 설치된 프로젝트가 어떤 AI OS 템플릿 버전을 기준으로 하는지 기록합니다.
+
+버전은 `MAJOR.MINOR.PATCH` 형식을 사용합니다.
+
+| 변경 유형 | 기준 |
+| --- | --- |
+| `PATCH` | 문서 보강, 검증 강화, 호환되는 스크립트 수정 |
+| `MINOR` | 새 스크립트, 새 하네스 문서, 호환되는 워크플로 기능 추가 |
+| `MAJOR` | 기존 설치 프로젝트의 운영 계약이나 파일 구조를 깨는 변경 |
+
+`scripts/upgrade-ai-os.sh`는 템플릿 저장소의 최신 `AI_OS_VERSION`을 대상 프로젝트로 복사합니다. 템플릿의 설치/업그레이드 동작, 하네스 계약, GitHub Actions 계약이 바뀌면 같은 커밋에서 `AI_OS_VERSION`도 함께 올립니다.
 
 ## 검증
 

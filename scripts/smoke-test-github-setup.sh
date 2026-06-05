@@ -39,6 +39,7 @@ required_files=(
   ".github/workflows/post-hook.yml"
   ".github/workflows/label-sync.yml"
   ".github/labels.yml"
+  "harness/agent-workflow.md"
   "harness/ai-rules.md"
   "harness/github-issue-protocol.md"
   "harness/github-mcp-protocol.md"
@@ -49,6 +50,7 @@ required_files=(
   "scripts/bootstrap-ai-os.sh"
   "scripts/upgrade-ai-os.sh"
   "AI_OS_VERSION"
+  "docs/README.md"
   "install.sh"
 )
 

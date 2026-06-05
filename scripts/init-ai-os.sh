@@ -204,6 +204,7 @@ mkdir -p "$output"
   echo
   echo "## Required Context"
   echo
+  echo "- Read \`harness/agent-workflow.md\` first for the end-to-end issue workflow."
   echo "- Read \`$rules_file\` before starting work."
   echo "- Use \`$issue_protocol\` when converting user requests into GitHub issues."
   echo
