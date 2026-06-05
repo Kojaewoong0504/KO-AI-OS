@@ -1,0 +1,21 @@
+project:
+  name: sample-service
+  domain: SaaS backend
+  stack:
+    - Python
+    - FastAPI
+    - PostgreSQL
+
+agent:
+  work_queue: github-issues
+  issue_protocol: harness/github-issue-protocol.md
+  rules_file: harness/ai-rules.md
+
+constraints:
+  - Never hardcode secrets
+  - Do not change public API contracts without tests
+
+verification:
+  commands:
+    - pytest
+    - npm test

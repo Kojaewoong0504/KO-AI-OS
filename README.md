@@ -54,8 +54,14 @@ skills/
 
 scripts/
 ├── create-ai-issue.sh       # 대화 내용을 ai-task 이슈로 등록
+├── init-ai-os.sh            # ai-os.project.yml로 AGENTS.md 생성
 ├── list-ready-ai-issues.sh  # ready-for-ai 작업 큐 조회
 └── verify-work-queue.sh     # 작업 큐 계약 검증
+
+templates/
+└── agents/                  # AGENTS.md와 ai-rules 생성 기준
+
+ai-os.project.example.yml    # 프로젝트 프로파일 예시
 ```
 
 ---
@@ -113,6 +119,28 @@ scripts/list-ready-ai-issues.sh
 
 GitHub MCP나 Connector가 연결된 환경에서는 같은 본문 형식과 라벨 규칙을 유지한 채 MCP 도구로 이슈를 생성해도 됩니다.
 자세한 규칙은 `harness/github-issue-protocol.md`를 따릅니다.
+
+## AGENTS.md 생성
+
+프로젝트 루트에 `ai-os.project.yml`을 작성한 뒤 생성 스크립트를 실행합니다.
+
+```bash
+cp ai-os.project.example.yml ai-os.project.yml
+$EDITOR ai-os.project.yml
+scripts/init-ai-os.sh --profile ai-os.project.yml --output .
+```
+
+기존 `AGENTS.md`가 있으면 기본적으로 덮어쓰지 않습니다.
+다시 생성하려면 명시적으로 `--force`를 사용합니다.
+
+```bash
+scripts/init-ai-os.sh --profile ai-os.project.yml --output . --force
+```
+
+생성 결과:
+
+- `AGENTS.md`
+- `harness/ai-rules.md`가 없을 경우 생성
 
 ### Post-hook (이슈 닫을 때)
 

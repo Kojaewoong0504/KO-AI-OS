@@ -12,9 +12,9 @@
 
 ## Tasks
 
-- [ ] Add profile fixture and failing init tests.
-- [ ] Implement `scripts/init-ai-os.sh`.
-- [ ] Add template files under `templates/agents/`.
-- [ ] Add `ai-os.project.example.yml`.
-- [ ] Update README and verification script.
-- [ ] Run all verification and commit.
+- [x] Add profile fixture and failing init tests.
+- [x] Implement `scripts/init-ai-os.sh`.
+- [x] Add template files under `templates/agents/`.
+- [x] Add `ai-os.project.example.yml`.
+- [x] Update README and verification script.
+- [x] Run all verification and commit.
