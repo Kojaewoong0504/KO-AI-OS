@@ -14,17 +14,22 @@ GitHub 저장소를 AI 작업 운영체제처럼 쓰기 위한 템플릿입니�
 
 ## 빠른 시작
 
-기존 프로젝트에 AI OS를 설치하는 기본 흐름입니다.
+기존 프로젝트에서는 아래 한 줄로 설치합니다.
 
 ```bash
-git clone https://github.com/Kojaewoong0504/KO-AI-OS.git tmp-ai-os
-cp tmp-ai-os/ai-os.project.example.yml ai-os.project.yml
-$EDITOR ai-os.project.yml
-tmp-ai-os/scripts/bootstrap-ai-os.sh --profile ai-os.project.yml --target .
-rm -rf tmp-ai-os
+curl -fsSL https://raw.githubusercontent.com/Kojaewoong0504/KO-AI-OS/main/install.sh \
+  | bash -s -- --target . --name my-project --domain "SaaS backend"
 ```
 
-설치 후 로컬 정적 점검:
+로컬에 템플릿 저장소를 clone한 상태라면:
+
+```bash
+./install.sh --target /path/to/project --name my-project --domain "SaaS backend"
+```
+
+`install.sh`는 `ai-os.project.yml`이 없으면 기본 프로파일을 자동으로 만들고, 있으면 그 파일을 사용합니다. 기존 파일은 기본적으로 보존하며, 정말 덮어써야 할 때만 `--force`를 붙입니다.
+
+설치 후 정적 점검:
 
 ```bash
 scripts/smoke-test-github-setup.sh --repo .
@@ -39,11 +44,10 @@ scripts/live-smoke-github-issue.sh --repo OWNER/REPO
 ## GitHub Template으로 사용
 
 1. GitHub에서 이 저장소의 **Use this template** 버튼으로 새 저장소를 만듭니다.
-2. `ai-os.project.example.yml`을 `ai-os.project.yml`로 복사합니다.
-3. 프로젝트 정보를 수정합니다.
-4. `scripts/init-ai-os.sh --profile ai-os.project.yml --output .`를 실행합니다.
-5. `scripts/smoke-test-github-setup.sh --repo .`로 로컬 설정을 확인합니다.
-6. GitHub에서 `AI OS Label Sync` workflow를 실행합니다.
+2. 저장소 루트에서 `./install.sh --target . --name my-project --domain "..."`를 실행합니다.
+3. 필요하면 생성된 `ai-os.project.yml`을 수정합니다.
+4. `scripts/smoke-test-github-setup.sh --repo .`로 로컬 설정을 확인합니다.
+5. GitHub에서 `AI OS Label Sync` workflow를 실행합니다.
 
 `ai-os.project.yml`은 로컬 프로젝트 설정 파일이므로 `.gitignore`에 포함되어 있습니다. 필요하면 프로젝트 정책에 따라 별도로 추적하세요.
 
@@ -77,7 +81,7 @@ verification:
     - npm test
 ```
 
-`AGENTS.md`만 다시 생성:
+처음 설치는 보통 `install.sh`로 충분합니다. `AGENTS.md`만 다시 생성해야 할 때는 하위 도구를 직접 실행합니다.
 
 ```bash
 scripts/init-ai-os.sh --profile ai-os.project.yml --output .
@@ -133,6 +137,7 @@ templates/
 AI_OS_VERSION
 ai-os.project.example.yml
 docs/github-smoke-test.md
+install.sh
 skills/README.md
 ```
 
@@ -252,7 +257,8 @@ GitHub MCP 또는 Connector가 연결되어 있으면 같은 규칙을 유지한
 ## 기존 프로젝트 설치
 
 ```bash
-tmp-ai-os/scripts/bootstrap-ai-os.sh --profile ai-os.project.yml --target .
+curl -fsSL https://raw.githubusercontent.com/Kojaewoong0504/KO-AI-OS/main/install.sh \
+  | bash -s -- --target . --name my-project --domain "SaaS backend"
 ```
 
 기본 정책:
@@ -263,10 +269,22 @@ tmp-ai-os/scripts/bootstrap-ai-os.sh --profile ai-os.project.yml --target .
 - `harness/ai-rules.md`는 프로젝트 프로파일 기반으로 생성
 - `docs/superpowers/`는 설치하지 않음
 
+프로파일을 먼저 직접 작성한 뒤 설치하려면:
+
+```bash
+./install.sh --target . --profile ai-os.project.yml
+```
+
+하위 bootstrap 스크립트를 직접 호출할 수도 있습니다.
+
+```bash
+scripts/bootstrap-ai-os.sh --profile ai-os.project.yml --target .
+```
+
 덮어쓰기:
 
 ```bash
-tmp-ai-os/scripts/bootstrap-ai-os.sh --profile ai-os.project.yml --target . --force
+./install.sh --target . --profile ai-os.project.yml --force
 ```
 
 ## 업그레이드

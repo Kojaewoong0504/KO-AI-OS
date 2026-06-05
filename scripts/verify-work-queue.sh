@@ -34,5 +34,6 @@ test -x "scripts/smoke-test-github-setup.sh"
 test -f "AI_OS_VERSION"
 test -f "docs/github-smoke-test.md"
 test -f ".gitignore"
+test -x "install.sh"
 
 echo "work queue verification passed"

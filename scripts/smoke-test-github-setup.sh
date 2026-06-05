@@ -49,6 +49,7 @@ required_files=(
   "scripts/bootstrap-ai-os.sh"
   "scripts/upgrade-ai-os.sh"
   "AI_OS_VERSION"
+  "install.sh"
 )
 
 for file in "${required_files[@]}"; do

@@ -90,5 +90,6 @@ copy_tree "templates"
 copy_tree "docs"
 copy_file "$repo_root/ai-os.project.example.yml" "$target/ai-os.project.example.yml"
 copy_file "$repo_root/AI_OS_VERSION" "$target/AI_OS_VERSION"
+copy_file "$repo_root/install.sh" "$target/install.sh"
 
 echo "Upgraded AI OS in $target"
