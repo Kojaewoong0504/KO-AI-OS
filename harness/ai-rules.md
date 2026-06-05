@@ -37,6 +37,7 @@ diff 요약:
 ## 작업 발견 규칙
 
 GitHub Issues가 AI 작업 큐의 정본이다.
+새 작업을 GitHub 이슈로 등록할 때는 `harness/github-issue-protocol.md`를 따른다.
 
 작업 가능 이슈 쿼리:
 

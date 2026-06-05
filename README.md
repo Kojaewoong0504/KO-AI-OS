@@ -39,6 +39,7 @@ rm -rf tmp-ai-os
 
 harness/
 ├── ai-rules.md              # AI 작업 규칙 (핵심)
+├── github-issue-protocol.md # 대화 → GitHub 이슈 등록 규칙
 ├── pre-hooks.md             # 작업 전 체크리스트
 ├── post-hooks.md            # 작업 후 체크리스트
 └── gc-checklist.md          # GC 주기 가이드
@@ -50,6 +51,11 @@ memory/
 
 skills/
 └── README.md                # 스킬 추가 가이드
+
+scripts/
+├── create-ai-issue.sh       # 대화 내용을 ai-task 이슈로 등록
+├── list-ready-ai-issues.sh  # ready-for-ai 작업 큐 조회
+└── verify-work-queue.sh     # 작업 큐 계약 검증
 ```
 
 ---
@@ -73,6 +79,40 @@ is:issue is:open label:ai-task label:ready-for-ai -label:needs-clarification -la
 
 즉, `ai-task`만 붙은 이슈는 작업 큐가 아닙니다.
 pre-hook을 통과해 `ready-for-ai`가 붙은 열린 이슈만 작업 가능 상태입니다.
+
+## 에이전트 대화에서 이슈 등록
+
+이 템플릿은 GitHub MCP 없이도 `gh` CLI로 이슈를 등록할 수 있습니다.
+
+사전 조건:
+
+```bash
+gh auth login
+```
+
+대화 내용을 이슈로 등록:
+
+```bash
+scripts/create-ai-issue.sh \
+  --title "[AI] 작업 제목" \
+  --purpose "이 작업의 목적" \
+  --criteria "완료 조건 1" \
+  --criteria "완료 조건 2" \
+  --scope-include "이번 이슈에서 처리할 범위" \
+  --scope-exclude "이번 이슈에서 제외할 범위" \
+  --constraints "지켜야 할 제약" \
+  --context "관련 파일 또는 이전 결정" \
+  --expected-output "코드 변경 / 문서 / 분석 리포트"
+```
+
+준비된 작업 큐 조회:
+
+```bash
+scripts/list-ready-ai-issues.sh
+```
+
+GitHub MCP나 Connector가 연결된 환경에서는 같은 본문 형식과 라벨 규칙을 유지한 채 MCP 도구로 이슈를 생성해도 됩니다.
+자세한 규칙은 `harness/github-issue-protocol.md`를 따릅니다.
 
 ### Post-hook (이슈 닫을 때)
 
