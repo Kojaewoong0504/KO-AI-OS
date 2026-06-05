@@ -1,0 +1,93 @@
+name: AI Task Pre-hook
+
+on:
+  issues:
+    types: [opened, edited]
+
+jobs:
+  pre-hook:
+    if: contains(github.event.issue.labels.*.name, 'ai-task')
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+
+    steps:
+      - name: Check issue completeness
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const body = context.payload.issue.body || '';
+            const issueNumber = context.payload.issue.number;
+
+            const missing = [];
+
+            // 목적 체크
+            const purposeMatch = body.match(/## 목적\s*\n([\s\S]*?)(?=\n##|$)/);
+            const purpose = purposeMatch ? purposeMatch[1].replace(/<!--[\s\S]*?-->/g, '').trim() : '';
+            if (!purpose) missing.push('**목적** — 이 작업을 왜 하는가?');
+
+            // 수락 기준 체크
+            const criteriaMatch = body.match(/## 수락 기준\s*\n([\s\S]*?)(?=\n##|$)/);
+            const criteria = criteriaMatch ? criteriaMatch[1].replace(/<!--[\s\S]*?-->/g, '').trim() : '';
+            const hasChecklist = /- \[ \] .+/.test(criteria);
+            if (!hasChecklist) missing.push('**수락 기준** — 완료 조건 체크리스트');
+
+            // 범위 체크
+            const scopeMatch = body.match(/## 범위\s*\n([\s\S]*?)(?=\n##|$)/);
+            const scope = scopeMatch ? scopeMatch[1].replace(/<!--[\s\S]*?-->/g, '').trim() : '';
+            if (!scope || scope === '**포함:**\n- \n\n**제외:**\n-') missing.push('**범위** — 포함/제외 항목');
+
+            if (missing.length > 0) {
+              const comment = [
+                '## Pre-hook: 이슈 린트 실패',
+                '',
+                '작업을 시작하기 전에 아래 항목을 보완해주세요.',
+                '',
+                ...missing.map(m => `- ${m}`),
+                '',
+                '> 항목이 채워지면 이슈를 수정(edit)하면 자동으로 재검사됩니다.',
+              ].join('\n');
+
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber,
+                body: comment,
+              });
+
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber,
+                labels: ['needs-clarification'],
+              });
+
+              core.setFailed(`이슈 #${issueNumber} 린트 실패: ${missing.length}개 항목 미입력`);
+            } else {
+              // 이전에 needs-clarification 라벨이 있으면 제거
+              try {
+                await github.rest.issues.removeLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issueNumber,
+                  name: 'needs-clarification',
+                });
+              } catch (e) {}
+
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber,
+                body: [
+                  '## Pre-hook: 이슈 린트 통과',
+                  '',
+                  '- [x] 목적 확인',
+                  '- [x] 수락 기준 확인',
+                  '- [x] 범위 확인',
+                  '',
+                  '작업을 시작할 준비가 되었습니다.',
+                  '',
+                  '> AI 작업 시작 전 `harness/ai-rules.md`를 컨텍스트로 주입하세요.',
+                ].join('\n'),
+              });
+            }

@@ -1,0 +1,49 @@
+name: AI Task Post-hook
+
+on:
+  issues:
+    types: [closed]
+
+jobs:
+  post-hook:
+    if: contains(github.event.issue.labels.*.name, 'ai-task')
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+
+    steps:
+      - name: Post-close checklist comment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issueNumber = context.payload.issue.number;
+            const issueTitle = context.payload.issue.title;
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNumber,
+              body: [
+                '## Post-hook: 작업 완료 체크리스트',
+                '',
+                '이슈를 닫기 전에 아래 항목을 확인하세요.',
+                '',
+                '### 결과물 확인',
+                '- [ ] 수락 기준 항목이 모두 충족되었는가?',
+                '- [ ] 결과물이 체크리스트·diff·요약표 형태로 제시되었는가?',
+                '- [ ] 테스트 방법이 함께 제시되었는가?',
+                '',
+                '### 리스크 확인',
+                '- [ ] 새로운 기술 부채가 없거나, 있다면 별도 이슈로 등록했는가?',
+                '- [ ] 기존 테스트가 깨지지 않았는가?',
+                '- [ ] 보안·운영 리스크가 없는가?',
+                '',
+                '### 하네스 강화',
+                '- [ ] AI가 실수하거나 방향을 바꾼 경우 `memory/mistakes/`에 기록했는가?',
+                '- [ ] 효과적인 패턴이 있다면 `memory/patterns/`에 기록했는가?',
+                '- [ ] 새로운 규칙이 필요하다면 `harness/ai-rules.md`에 반영했는가?',
+                '',
+                '---',
+                `> 이슈: #${issueNumber} ${issueTitle}`,
+              ].join('\n'),
+            });
