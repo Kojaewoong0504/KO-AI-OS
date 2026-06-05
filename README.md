@@ -1,109 +1,208 @@
-# 재웅의 AI OS — Template Repository
+# 재웅의 AI OS Template
 
-새 프로젝트를 시작할 때 이 템플릿을 사용하면 AI OS 전체가 자동으로 설치됩니다.
+GitHub 저장소를 AI 작업 운영체제처럼 쓰기 위한 템플릿입니다.
 
-## 설치 방법
+이 템플릿은 새 프로젝트 또는 기존 프로젝트에 다음을 설치합니다.
 
-### 방법 1: GitHub Template으로 새 프로젝트 시작
+- `AGENTS.md`와 `harness/ai-rules.md` 기반 에이전트 운영 규칙
+- GitHub Issues 기반 AI 작업 큐
+- `ready-for-ai` 라벨 기반 작업 가능 상태
+- 대화 내용을 GitHub 이슈로 등록하는 CLI
+- GitHub Actions pre/post hook
+- 라벨 자동 동기화
+- 설치, 업그레이드, smoke test 스크립트
 
-1. 이 저장소 상단의 **"Use this template"** 버튼 클릭
-2. 새 저장소 이름 입력 후 생성
-3. `harness/ai-rules.md`를 프로젝트에 맞게 수정
+## 빠른 시작
 
-### 방법 2: 기존 프로젝트에 추가
+기존 프로젝트에 AI OS를 설치하는 기본 흐름입니다.
 
 ```bash
-# 기존 프로젝트 루트에서 실행
-git clone https://github.com/{your-username}/ai-os-template tmp-ai-os
+git clone https://github.com/Kojaewoong0504/KO-AI-OS.git tmp-ai-os
 cp tmp-ai-os/ai-os.project.example.yml ai-os.project.yml
 $EDITOR ai-os.project.yml
 tmp-ai-os/scripts/bootstrap-ai-os.sh --profile ai-os.project.yml --target .
 rm -rf tmp-ai-os
 ```
 
----
+설치 후 로컬 정적 점검:
 
-## 포함된 파일 구조
-
+```bash
+scripts/smoke-test-github-setup.sh --repo .
 ```
+
+GitHub 원격에서 실제 pre-hook까지 점검:
+
+```bash
+scripts/live-smoke-github-issue.sh --repo OWNER/REPO
+```
+
+## GitHub Template으로 사용
+
+1. GitHub에서 이 저장소의 **Use this template** 버튼으로 새 저장소를 만듭니다.
+2. `ai-os.project.example.yml`을 `ai-os.project.yml`로 복사합니다.
+3. 프로젝트 정보를 수정합니다.
+4. `scripts/init-ai-os.sh --profile ai-os.project.yml --output .`를 실행합니다.
+5. `scripts/smoke-test-github-setup.sh --repo .`로 로컬 설정을 확인합니다.
+6. GitHub에서 `AI OS Label Sync` workflow를 실행합니다.
+
+`ai-os.project.yml`은 로컬 프로젝트 설정 파일이므로 `.gitignore`에 포함되어 있습니다. 필요하면 프로젝트 정책에 따라 별도로 추적하세요.
+
+## 프로젝트 프로파일
+
+`ai-os.project.yml`은 `AGENTS.md`와 프로젝트별 `harness/ai-rules.md`를 생성하는 입력입니다.
+
+예시:
+
+```yaml
+project:
+  name: my-service
+  domain: SaaS backend
+  stack:
+    - Python
+    - FastAPI
+    - PostgreSQL
+
+agent:
+  work_queue: github-issues
+  issue_protocol: harness/github-issue-protocol.md
+  rules_file: harness/ai-rules.md
+
+constraints:
+  - Never hardcode secrets
+  - Do not change public API contracts without tests
+
+verification:
+  commands:
+    - pytest
+    - npm test
+```
+
+`AGENTS.md`만 다시 생성:
+
+```bash
+scripts/init-ai-os.sh --profile ai-os.project.yml --output .
+```
+
+기존 `AGENTS.md`를 덮어쓰려면:
+
+```bash
+scripts/init-ai-os.sh --profile ai-os.project.yml --output . --force
+```
+
+## 포함 파일
+
+```text
 .github/
 ├── ISSUE_TEMPLATE/
-│   ├── ai-task.yml          # AI 작업 이슈 템플릿
-│   └── gc-task.yml          # GC 이슈 템플릿
-├── labels.yml               # AI OS 표준 라벨
+│   ├── ai-task.yml
+│   └── gc-task.yml
+├── labels.yml
 └── workflows/
-    ├── label-sync.yml       # 표준 라벨 생성/갱신
-    ├── pre-hook.yml         # 이슈 생성 시 자동 린트
-    ├── post-hook.yml        # 이슈 닫을 때 체크리스트
-    └── gc-reminder.yml      # 매주 GC 이슈 자동 생성
+    ├── label-sync.yml
+    ├── pre-hook.yml
+    ├── post-hook.yml
+    └── gc-reminder.yml
 
 harness/
-├── ai-rules.md              # AI 작업 규칙 (핵심)
-├── github-issue-protocol.md # 대화 → GitHub 이슈 등록 규칙
-├── github-mcp-protocol.md   # GitHub MCP/Connector 사용 규칙
-├── pre-hooks.md             # 작업 전 체크리스트
-├── post-hooks.md            # 작업 후 체크리스트
-└── gc-checklist.md          # GC 주기 가이드
+├── ai-rules.md
+├── github-issue-protocol.md
+├── github-mcp-protocol.md
+├── pre-hooks.md
+├── post-hooks.md
+└── gc-checklist.md
 
 memory/
-├── mistakes/README.md       # AI 실수 기록 가이드
-├── patterns/README.md       # 좋은 패턴 기록
-└── decisions/README.md      # 설계 판단 기록 (ADR)
-
-skills/
-└── README.md                # 스킬 추가 가이드
+├── decisions/README.md
+├── mistakes/README.md
+└── patterns/README.md
 
 scripts/
-├── bootstrap-ai-os.sh       # 기존 프로젝트에 AI OS 템플릿 설치
-├── create-ai-issue.sh       # 대화 내용을 ai-task 이슈로 등록
-├── generate-issue-draft.sh  # 대화 내용을 issue.yml 초안으로 저장
-├── init-ai-os.sh            # ai-os.project.yml로 AGENTS.md 생성
-├── live-smoke-github-issue.sh # 실제 GitHub 이슈/Actions 점검
-├── list-ready-ai-issues.sh  # ready-for-ai 작업 큐 조회
-├── smoke-test-github-setup.sh # GitHub 설정 정적 점검
-├── upgrade-ai-os.sh         # 기존 설치본을 최신 템플릿 파일로 갱신
-└── verify-work-queue.sh     # 작업 큐 계약 검증
+├── bootstrap-ai-os.sh
+├── create-ai-issue.sh
+├── generate-issue-draft.sh
+├── init-ai-os.sh
+├── list-ready-ai-issues.sh
+├── live-smoke-github-issue.sh
+├── smoke-test-github-setup.sh
+├── upgrade-ai-os.sh
+└── verify-work-queue.sh
 
 templates/
-└── agents/                  # AGENTS.md와 ai-rules 생성 기준
+└── agents/
 
-ai-os.project.example.yml    # 프로젝트 프로파일 예시
-AI_OS_VERSION                 # 설치/업그레이드 비교용 버전
+AI_OS_VERSION
+ai-os.project.example.yml
+docs/github-smoke-test.md
+skills/README.md
 ```
 
----
+## 포함하지 않는 파일
 
-## GitHub Actions 동작 방식
+이 템플릿의 자체 검증용 `tests/` 폴더는 GitHub Template으로 배포하지 않습니다.
 
-### Pre-hook (이슈 생성/수정 시)
+이유:
 
-ai-task 라벨이 붙은 이슈를 검사합니다.
+- `tests/`는 템플릿 자체의 테스트이지, 템플릿을 적용한 프로젝트의 테스트가 아닙니다.
+- 새 프로젝트는 자기 테스트 폴더를 직접 만들고 추적해야 합니다.
+- 그래서 `tests/`는 tracked 파일에서 제거했고, 이 저장소 로컬에서는 `.git/info/exclude`로만 제외합니다.
 
-| 상태 | 자동 처리 |
-|-----------|--------------|
-| 목적/수락 기준/범위 중 누락 있음 | `needs-clarification` 라벨 + 코멘트, `ready-for-ai` 제거 |
-| 목적/수락 기준/범위 모두 입력됨 | `ready-for-ai` 라벨 + 통과 코멘트, `needs-clarification` 제거 |
+또한 `docs/superpowers/` 같은 에이전트 작업 계획/설계 산출물은 재사용 템플릿 런타임이 아니므로 `.gitignore`에 포함되어 있습니다.
 
-AI 에이전트가 작업할 수 있는 이슈는 아래 쿼리로 찾습니다.
+## GitHub Issue 작업 큐
+
+이 템플릿의 작업 큐 정본은 GitHub Issues입니다.
+
+작업 가능 이슈:
 
 ```text
 is:issue is:open label:ai-task label:ready-for-ai -label:needs-clarification -label:blocked
 ```
 
-즉, `ai-task`만 붙은 이슈는 작업 큐가 아닙니다.
-pre-hook을 통과해 `ready-for-ai`가 붙은 열린 이슈만 작업 가능 상태입니다.
+라벨 의미:
 
-## 에이전트 대화에서 이슈 등록
+| 라벨 | 의미 |
+| --- | --- |
+| `ai-task` | AI가 처리할 작업 |
+| `ready-for-ai` | pre-hook 검증을 통과해 작업 가능 |
+| `needs-clarification` | 목적, 수락 기준, 범위가 부족함 |
+| `blocked` | 외부 입력이나 의존성 때문에 진행 불가 |
 
-이 템플릿은 GitHub MCP 없이도 `gh` CLI로 이슈를 등록할 수 있습니다.
+## GitHub Actions
 
-사전 조건:
+### Label Sync
+
+`.github/labels.yml`의 표준 라벨을 GitHub 저장소에 생성/갱신합니다.
+
+```bash
+gh workflow run label-sync.yml --repo OWNER/REPO
+```
+
+### Pre-hook
+
+`ai-task` 라벨이 붙은 이슈가 생성/수정될 때 실행됩니다.
+
+| 상태 | 자동 처리 |
+| --- | --- |
+| 목적/수락 기준/범위 누락 | `needs-clarification` 추가, `ready-for-ai` 제거 |
+| 목적/수락 기준/범위 입력 완료 | `ready-for-ai` 추가, `needs-clarification` 제거 |
+
+### Post-hook
+
+`ai-task` 이슈가 닫힐 때 완료 체크리스트 코멘트를 남깁니다.
+
+### GC Reminder
+
+정기적으로 코드/하네스 정리 이슈를 생성합니다.
+
+## 이슈 생성
+
+GitHub CLI 인증:
 
 ```bash
 gh auth login
 ```
 
-대화 내용을 이슈로 등록:
+CLI 인자로 바로 생성:
 
 ```bash
 scripts/create-ai-issue.sh \
@@ -118,16 +217,7 @@ scripts/create-ai-issue.sh \
   --expected-output "코드 변경 / 문서 / 분석 리포트"
 ```
 
-준비된 작업 큐 조회:
-
-```bash
-scripts/list-ready-ai-issues.sh
-```
-
-GitHub MCP나 Connector가 연결된 환경에서는 같은 본문 형식과 라벨 규칙을 유지한 채 MCP 도구로 이슈를 생성해도 됩니다.
-자세한 규칙은 `harness/github-issue-protocol.md`와 `harness/github-mcp-protocol.md`를 따릅니다.
-
-파일로 이슈 초안을 넘길 수도 있습니다.
+이슈 초안 파일 생성 후 등록:
 
 ```bash
 scripts/generate-issue-draft.sh \
@@ -140,89 +230,91 @@ scripts/generate-issue-draft.sh \
 scripts/create-ai-issue.sh --from-file issue.yml
 ```
 
-## AGENTS.md 생성
-
-프로젝트 루트에 `ai-os.project.yml`을 작성한 뒤 생성 스크립트를 실행합니다.
+준비된 작업 큐 조회:
 
 ```bash
-cp ai-os.project.example.yml ai-os.project.yml
-$EDITOR ai-os.project.yml
-scripts/init-ai-os.sh --profile ai-os.project.yml --output .
+scripts/list-ready-ai-issues.sh
 ```
 
-기존 `AGENTS.md`가 있으면 기본적으로 덮어쓰지 않습니다.
-다시 생성하려면 명시적으로 `--force`를 사용합니다.
+## MCP/Connector 사용
+
+MCP는 필수가 아닙니다. 기본 경로는 `gh` CLI입니다.
+
+GitHub MCP 또는 Connector가 연결되어 있으면 같은 규칙을 유지한 채 MCP 도구로 대체할 수 있습니다.
+
+- 이슈 생성 시 `ai-task` 라벨 사용
+- 본문 형식은 `harness/github-issue-protocol.md` 준수
+- 작업 큐 조회는 `ai-task + ready-for-ai`
+- `ready-for-ai`는 직접 붙이지 않고 pre-hook에 맡김
+
+세부 규칙은 `harness/github-mcp-protocol.md`를 따릅니다.
+
+## 기존 프로젝트 설치
 
 ```bash
-scripts/init-ai-os.sh --profile ai-os.project.yml --output . --force
+tmp-ai-os/scripts/bootstrap-ai-os.sh --profile ai-os.project.yml --target .
 ```
 
-생성 결과:
+기본 정책:
 
-- `AGENTS.md`
-- `harness/ai-rules.md`가 없을 경우 생성
+- 기존 파일은 보존
+- 없는 파일만 복사
+- `AGENTS.md`는 `init-ai-os.sh`로 생성
+- `harness/ai-rules.md`는 프로젝트 프로파일 기반으로 생성
+- `docs/superpowers/`는 설치하지 않음
 
-기존 프로젝트에 전체 AI OS 템플릿을 설치하려면 bootstrap 스크립트를 사용합니다.
+덮어쓰기:
 
 ```bash
-scripts/bootstrap-ai-os.sh --profile ai-os.project.yml --target /path/to/project
+tmp-ai-os/scripts/bootstrap-ai-os.sh --profile ai-os.project.yml --target . --force
 ```
 
-기존 파일은 기본적으로 보존합니다. 덮어쓰려면 `--force`를 명시합니다.
+## 업그레이드
 
-이미 설치된 프로젝트를 최신 템플릿 파일로 갱신하려면 upgrade 스크립트를 사용합니다.
+이미 AI OS가 설치된 프로젝트를 최신 템플릿 파일로 갱신합니다.
 
 ```bash
 scripts/upgrade-ai-os.sh --target /path/to/project
 ```
 
-`harness/ai-rules.md`처럼 프로젝트별로 생성되는 파일은 덮어쓰지 않습니다.
+기본 정책:
 
-## GitHub 설정 점검
+- 기존 파일은 보존
+- `AI_OS_VERSION`은 최신 버전으로 갱신
+- `harness/ai-rules.md`는 프로젝트별 파일이므로 덮어쓰지 않음
+- `docs/superpowers/`는 설치하지 않음
+
+강제 덮어쓰기:
+
+```bash
+scripts/upgrade-ai-os.sh --target /path/to/project --force
+```
+
+## 검증
 
 로컬 정적 점검:
 
 ```bash
 scripts/smoke-test-github-setup.sh --repo .
+scripts/verify-work-queue.sh
 ```
 
-실제 GitHub Actions 확인 절차는 `docs/github-smoke-test.md`를 따릅니다.
-
-원격 저장소에서 실제 이슈 pre-hook까지 확인하려면:
+실제 GitHub Actions 점검:
 
 ```bash
 scripts/live-smoke-github-issue.sh --repo OWNER/REPO
 ```
 
-### Post-hook (이슈 닫을 때)
-
-이슈를 닫으면 체크리스트 코멘트가 자동으로 달립니다.
-결과물 확인 → 리스크 확인 → 하네스 강화 순서로 점검합니다.
-
-### GC 리마인더 (매주 월요일)
-
-- 매주: 코드 GC 이슈 자동 생성
-- 격주: 하네스 GC 이슈 자동 생성
-
----
-
-## 프로젝트별 커스터마이징
-
-harness/ai-rules.md 하단 도메인 컨텍스트 섹션을 반드시 프로젝트에 맞게 수정하세요.
-
-```markdown
-## 도메인 컨텍스트
-- 주 작업 도메인: {이 프로젝트의 도메인}
-- 기술 스택: {언어, 프레임워크}
-- 주의사항: {이 프로젝트 특이사항}
-```
-
----
+이 스크립트는 임시 `ai-task` 이슈를 만들고, pre-hook이 `ready-for-ai`를 붙이는지 확인한 뒤 이슈를 닫습니다.
 
 ## 하네스 강화 루프
 
-```
-AI 실수 → memory/mistakes/ 기록 → 패턴 분석 → harness/ai-rules.md 업데이트
+```text
+AI 실수
+-> memory/mistakes/ 기록
+-> 패턴 분석
+-> memory/patterns/ 또는 memory/decisions/ 기록
+-> harness/ai-rules.md 업데이트
 ```
 
-이 루프가 작동하면 시스템은 쓸수록 강해집니다.
+이 루프가 작동하면 프로젝트는 사용할수록 더 구체적인 AI 작업 운영체제가 됩니다.
