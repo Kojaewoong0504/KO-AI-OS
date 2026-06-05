@@ -12,7 +12,7 @@
 
 ## Tasks
 
-- [ ] Add failing bootstrap tests.
-- [ ] Implement `scripts/bootstrap-ai-os.sh`.
-- [ ] Update README and verification script.
-- [ ] Run all verification and commit.
+- [x] Add failing bootstrap tests.
+- [x] Implement `scripts/bootstrap-ai-os.sh`.
+- [x] Update README and verification script.
+- [x] Run all verification and commit.

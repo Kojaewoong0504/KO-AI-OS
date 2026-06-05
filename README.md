@@ -14,12 +14,10 @@
 
 ```bash
 # 기존 프로젝트 루트에서 실행
-# .github/, harness/, memory/, skills/ 디렉토리만 복사
 git clone https://github.com/{your-username}/ai-os-template tmp-ai-os
-cp -r tmp-ai-os/.github .
-cp -r tmp-ai-os/harness .
-cp -r tmp-ai-os/memory .
-cp -r tmp-ai-os/skills .
+cp tmp-ai-os/ai-os.project.example.yml ai-os.project.yml
+$EDITOR ai-os.project.yml
+tmp-ai-os/scripts/bootstrap-ai-os.sh --profile ai-os.project.yml --target .
 rm -rf tmp-ai-os
 ```
 
@@ -53,6 +51,7 @@ skills/
 └── README.md                # 스킬 추가 가이드
 
 scripts/
+├── bootstrap-ai-os.sh       # 기존 프로젝트에 AI OS 템플릿 설치
 ├── create-ai-issue.sh       # 대화 내용을 ai-task 이슈로 등록
 ├── init-ai-os.sh            # ai-os.project.yml로 AGENTS.md 생성
 ├── list-ready-ai-issues.sh  # ready-for-ai 작업 큐 조회
@@ -141,6 +140,14 @@ scripts/init-ai-os.sh --profile ai-os.project.yml --output . --force
 
 - `AGENTS.md`
 - `harness/ai-rules.md`가 없을 경우 생성
+
+기존 프로젝트에 전체 AI OS 템플릿을 설치하려면 bootstrap 스크립트를 사용합니다.
+
+```bash
+scripts/bootstrap-ai-os.sh --profile ai-os.project.yml --target /path/to/project
+```
+
+기존 파일은 기본적으로 보존합니다. 덮어쓰려면 `--force`를 명시합니다.
 
 ### Post-hook (이슈 닫을 때)
 
