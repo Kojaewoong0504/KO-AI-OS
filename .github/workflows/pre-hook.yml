@@ -62,6 +62,16 @@ jobs:
                 labels: ['needs-clarification'],
               });
 
+              // 실패한 이슈가 작업 큐에 남지 않도록 ready-for-ai 라벨 제거
+              try {
+                await github.rest.issues.removeLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issueNumber,
+                  name: 'ready-for-ai',
+                });
+              } catch (e) {}
+
               core.setFailed(`이슈 #${issueNumber} 린트 실패: ${missing.length}개 항목 미입력`);
             } else {
               // 이전에 needs-clarification 라벨이 있으면 제거
@@ -74,6 +84,13 @@ jobs:
                 });
               } catch (e) {}
 
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber,
+                labels: ['ready-for-ai'],
+              });
+
               await github.rest.issues.createComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
@@ -84,6 +101,7 @@ jobs:
                   '- [x] 목적 확인',
                   '- [x] 수락 기준 확인',
                   '- [x] 범위 확인',
+                  '- [x] ready-for-ai 라벨 부여',
                   '',
                   '작업을 시작할 준비가 되었습니다.',
                   '',

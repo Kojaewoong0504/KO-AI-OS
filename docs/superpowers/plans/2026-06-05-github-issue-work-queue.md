@@ -29,7 +29,7 @@
 **Files:**
 - Create: `scripts/verify-work-queue.sh`
 
-- [ ] **Step 1: Create the verification script**
+- [x] **Step 1: Create the verification script**
 
 ```bash
 #!/usr/bin/env bash
@@ -49,13 +49,13 @@ grep -q "ready-for-ai" "$readme"
 echo "work queue verification passed"
 ```
 
-- [ ] **Step 2: Run script before implementation to verify it fails**
+- [x] **Step 2: Run script before implementation to verify it fails**
 
 Run: `bash scripts/verify-work-queue.sh`
 
 Expected: FAIL because the script does not exist yet or because `ready-for-ai` is not implemented in the workflow/docs.
 
-- [ ] **Step 3: Commit verification script after implementation**
+- [x] **Step 3: Commit verification script after implementation**
 
 ```bash
 git add scripts/verify-work-queue.sh
@@ -73,7 +73,7 @@ Not-tested: Live GitHub Actions execution"
 **Files:**
 - Modify: `.github/workflows/pre-hook.yml`
 
-- [ ] **Step 1: Update failure path**
+- [x] **Step 1: Update failure path**
 
 Add removal of stale `ready-for-ai` before failing validation:
 
@@ -88,7 +88,7 @@ try {
 } catch (e) {}
 ```
 
-- [ ] **Step 2: Update success path**
+- [x] **Step 2: Update success path**
 
 Add `ready-for-ai` after removing `needs-clarification`:
 
@@ -107,7 +107,7 @@ Update the success comment so it names the readiness label:
 '- [x] ready-for-ai 라벨 부여',
 ```
 
-- [ ] **Step 3: Run verification**
+- [x] **Step 3: Run verification**
 
 Run: `bash scripts/verify-work-queue.sh`
 
@@ -119,7 +119,7 @@ Expected: PASS after Task 3 documentation is also complete.
 - Modify: `harness/ai-rules.md`
 - Modify: `README.md`
 
-- [ ] **Step 1: Add work discovery to `harness/ai-rules.md`**
+- [x] **Step 1: Add work discovery to `harness/ai-rules.md`**
 
 Add a section before `작업 전 규칙`:
 
@@ -144,7 +144,7 @@ is:issue is:open label:ai-task label:ready-for-ai -label:needs-clarification -la
 이슈 본문과 코멘트를 읽고, 수락 기준을 완료 계약으로 삼는다.
 ~~~
 
-- [ ] **Step 2: Update `README.md` pre-hook section**
+- [x] **Step 2: Update `README.md` pre-hook section**
 
 Document that complete issues receive `ready-for-ai`, incomplete issues receive `needs-clarification`, and agents should query:
 
@@ -152,13 +152,13 @@ Document that complete issues receive `ready-for-ai`, incomplete issues receive 
 is:issue is:open label:ai-task label:ready-for-ai -label:needs-clarification -label:blocked
 ```
 
-- [ ] **Step 3: Run verification**
+- [x] **Step 3: Run verification**
 
 Run: `bash scripts/verify-work-queue.sh`
 
 Expected: `work queue verification passed`
 
-- [ ] **Step 4: Commit implementation and docs**
+- [x] **Step 4: Commit implementation and docs**
 
 ```bash
 git add .github/workflows/pre-hook.yml harness/ai-rules.md README.md scripts/verify-work-queue.sh

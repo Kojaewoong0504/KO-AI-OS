@@ -34,6 +34,27 @@ diff 요약:
 
 ---
 
+## 작업 발견 규칙
+
+GitHub Issues가 AI 작업 큐의 정본이다.
+
+작업 가능 이슈 쿼리:
+
+```text
+is:issue is:open label:ai-task label:ready-for-ai -label:needs-clarification -label:blocked
+```
+
+- `ai-task`: AI가 처리할 수 있는 작업
+- `ready-for-ai`: pre-hook을 통과해 작업 가능한 상태
+- `needs-clarification`: 목적·수락 기준·범위가 부족해 작업 금지
+- `blocked`: 외부 입력이나 의존성 때문에 작업 금지
+
+작업 시작 전에는 가장 오래된 `ready-for-ai` 이슈를 우선 확인한다.
+사용자가 특정 이슈 번호나 우선순위를 지정하면 그 지시를 우선한다.
+이슈 본문과 코멘트를 읽고, 수락 기준을 완료 계약으로 삼는다.
+
+---
+
 ## 작업 전 규칙
 
 - 구현 전에 반드시 요구사항에서 빠진 항목을 먼저 질문한다

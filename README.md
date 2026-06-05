@@ -60,13 +60,19 @@ skills/
 
 ai-task 라벨이 붙은 이슈를 검사합니다.
 
-| 검사 항목 | 비어있을 경우 |
+| 상태 | 자동 처리 |
 |-----------|--------------|
-| 목적 | needs-clarification 라벨 + 코멘트 |
-| 수락 기준 | 동일 |
-| 범위 | 동일 |
+| 목적/수락 기준/범위 중 누락 있음 | `needs-clarification` 라벨 + 코멘트, `ready-for-ai` 제거 |
+| 목적/수락 기준/범위 모두 입력됨 | `ready-for-ai` 라벨 + 통과 코멘트, `needs-clarification` 제거 |
 
-모든 항목이 채워지면 통과 코멘트를 남깁니다.
+AI 에이전트가 작업할 수 있는 이슈는 아래 쿼리로 찾습니다.
+
+```text
+is:issue is:open label:ai-task label:ready-for-ai -label:needs-clarification -label:blocked
+```
+
+즉, `ai-task`만 붙은 이슈는 작업 큐가 아닙니다.
+pre-hook을 통과해 `ready-for-ai`가 붙은 열린 이슈만 작업 가능 상태입니다.
 
 ### Post-hook (이슈 닫을 때)
 
