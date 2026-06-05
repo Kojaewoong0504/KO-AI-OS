@@ -30,7 +30,9 @@ rm -rf tmp-ai-os
 ├── ISSUE_TEMPLATE/
 │   ├── ai-task.yml          # AI 작업 이슈 템플릿
 │   └── gc-task.yml          # GC 이슈 템플릿
+├── labels.yml               # AI OS 표준 라벨
 └── workflows/
+    ├── label-sync.yml       # 표준 라벨 생성/갱신
     ├── pre-hook.yml         # 이슈 생성 시 자동 린트
     ├── post-hook.yml        # 이슈 닫을 때 체크리스트
     └── gc-reminder.yml      # 매주 GC 이슈 자동 생성
@@ -38,6 +40,7 @@ rm -rf tmp-ai-os
 harness/
 ├── ai-rules.md              # AI 작업 규칙 (핵심)
 ├── github-issue-protocol.md # 대화 → GitHub 이슈 등록 규칙
+├── github-mcp-protocol.md   # GitHub MCP/Connector 사용 규칙
 ├── pre-hooks.md             # 작업 전 체크리스트
 ├── post-hooks.md            # 작업 후 체크리스트
 └── gc-checklist.md          # GC 주기 가이드
@@ -55,12 +58,14 @@ scripts/
 ├── create-ai-issue.sh       # 대화 내용을 ai-task 이슈로 등록
 ├── init-ai-os.sh            # ai-os.project.yml로 AGENTS.md 생성
 ├── list-ready-ai-issues.sh  # ready-for-ai 작업 큐 조회
+├── smoke-test-github-setup.sh # GitHub 설정 정적 점검
 └── verify-work-queue.sh     # 작업 큐 계약 검증
 
 templates/
 └── agents/                  # AGENTS.md와 ai-rules 생성 기준
 
 ai-os.project.example.yml    # 프로젝트 프로파일 예시
+AI_OS_VERSION                 # 설치/업그레이드 비교용 버전
 ```
 
 ---
@@ -117,7 +122,13 @@ scripts/list-ready-ai-issues.sh
 ```
 
 GitHub MCP나 Connector가 연결된 환경에서는 같은 본문 형식과 라벨 규칙을 유지한 채 MCP 도구로 이슈를 생성해도 됩니다.
-자세한 규칙은 `harness/github-issue-protocol.md`를 따릅니다.
+자세한 규칙은 `harness/github-issue-protocol.md`와 `harness/github-mcp-protocol.md`를 따릅니다.
+
+파일로 이슈 초안을 넘길 수도 있습니다.
+
+```bash
+scripts/create-ai-issue.sh --from-file issue.yml
+```
 
 ## AGENTS.md 생성
 
@@ -148,6 +159,16 @@ scripts/bootstrap-ai-os.sh --profile ai-os.project.yml --target /path/to/project
 ```
 
 기존 파일은 기본적으로 보존합니다. 덮어쓰려면 `--force`를 명시합니다.
+
+## GitHub 설정 점검
+
+로컬 정적 점검:
+
+```bash
+scripts/smoke-test-github-setup.sh --repo .
+```
+
+실제 GitHub Actions 확인 절차는 `docs/github-smoke-test.md`를 따릅니다.
 
 ### Post-hook (이슈 닫을 때)
 

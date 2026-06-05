@@ -4,6 +4,7 @@ set -euo pipefail
 usage() {
   cat >&2 <<'USAGE'
 Usage: scripts/create-ai-issue.sh \
+  [--from-file ISSUE_DRAFT.yml] \
   --title TITLE \
   --purpose TEXT \
   --criteria TEXT [--criteria TEXT ...] \
@@ -35,12 +36,92 @@ purpose=""
 constraints=""
 context=""
 expected_output=""
+from_file=""
 criteria=()
 scope_include=()
 scope_exclude=()
 
+trim() {
+  local value="$1"
+  value="${value#"${value%%[![:space:]]*}"}"
+  value="${value%"${value##*[![:space:]]}"}"
+  value="${value%\"}"
+  value="${value#\"}"
+  printf '%s' "$value"
+}
+
+draft_scalar_value() {
+  local key="$1"
+  awk -v key="$key" '
+    $0 ~ "^" key ":" {
+      sub("^" key ":[[:space:]]*", "")
+      print
+      exit
+    }
+  ' "$from_file"
+}
+
+draft_list_values() {
+  local key="$1"
+  awk -v key="$key" '
+    /^[^[:space:]].*:$/ {
+      current=$0
+      sub(/:.*/, "", current)
+      next
+    }
+    current == key && /^[[:space:]]+-[[:space:]]+/ {
+      value=$0
+      sub(/^[[:space:]]+-[[:space:]]+/, "", value)
+      print value
+    }
+  ' "$from_file"
+}
+
+load_issue_draft() {
+  if [[ ! -f "$from_file" ]]; then
+    echo "Issue draft not found: $from_file" >&2
+    exit 1
+  fi
+
+  title="$(trim "$(draft_scalar_value title)")"
+  purpose="$(trim "$(draft_scalar_value purpose)")"
+  constraints="$(trim "$(draft_scalar_value constraints)")"
+  context="$(trim "$(draft_scalar_value context)")"
+  expected_output="$(trim "$(draft_scalar_value expected_output)")"
+
+  criteria=()
+  while IFS= read -r item; do
+    criteria+=("$(trim "$item")")
+  done < <(draft_list_values criteria)
+
+  scope_include=()
+  while IFS= read -r item; do
+    scope_include+=("$(trim "$item")")
+  done < <(draft_list_values scope_include)
+
+  scope_exclude=()
+  while IFS= read -r item; do
+    scope_exclude+=("$(trim "$item")")
+  done < <(draft_list_values scope_exclude)
+}
+
+args=("$@")
+for ((i = 0; i < ${#args[@]}; i++)); do
+  if [[ "${args[$i]}" == "--from-file" ]]; then
+    from_file="${args[$((i + 1))]:-}"
+  fi
+done
+
+if [[ -n "$from_file" ]]; then
+  load_issue_draft
+fi
+
 while [[ $# -gt 0 ]]; do
   case "$1" in
+    --from-file)
+      from_file="${2:-}"
+      shift 2
+      ;;
     --title)
       title="${2:-}"
       shift 2

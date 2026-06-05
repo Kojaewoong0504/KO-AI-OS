@@ -1,0 +1,12 @@
+- name: ai-task
+  color: "6f42c1"
+  description: "AI agent task"
+- name: ready-for-ai
+  color: "0e8a16"
+  description: "Validated and ready for AI work"
+- name: needs-clarification
+  color: "d93f0b"
+  description: "Missing required task context"
+- name: blocked
+  color: "b60205"
+  description: "Blocked by external dependency or decision"

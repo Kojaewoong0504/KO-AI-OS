@@ -99,6 +99,52 @@ test_create_rejects_empty_required_values() {
   assert_contains "$tmpdir/empty.err" "Missing required option"
 }
 
+test_create_ai_issue_from_file() {
+  : > "$GH_FAKE_LOG"
+
+  "$repo_root/scripts/create-ai-issue.sh" \
+    --from-file "$repo_root/tests/fixtures/ai-issue.yml" >"$tmpdir/create-file.out"
+
+  assert_contains "$tmpdir/create-file.out" "https://github.com/example/repo/issues/123"
+  assert_contains "$GH_FAKE_LOG" "--title [AI] Add file based issue creation"
+  assert_contains "$GH_FAKE_BODY" "파일 입력으로 GitHub 이슈를 만들 수 있게 한다."
+  assert_contains "$GH_FAKE_BODY" "- [ ] YAML draft에서 수락 기준을 읽는다."
+  assert_contains "$GH_FAKE_BODY" "- create-ai-issue.sh"
+  assert_contains "$GH_FAKE_BODY" "- GitHub MCP 서버 구현"
+}
+
+test_create_ai_issue_flags_override_file() {
+  : > "$GH_FAKE_LOG"
+
+  "$repo_root/scripts/create-ai-issue.sh" \
+    --from-file "$repo_root/tests/fixtures/ai-issue.yml" \
+    --title "[AI] Override title" \
+    --purpose "CLI 목적이 우선한다." \
+    --criteria "CLI 기준" \
+    --scope-include "CLI 범위" >"$tmpdir/create-override.out"
+
+  assert_contains "$GH_FAKE_LOG" "--title [AI] Override title"
+  assert_contains "$GH_FAKE_BODY" "CLI 목적이 우선한다."
+  assert_contains "$GH_FAKE_BODY" "- [ ] CLI 기준"
+  assert_contains "$GH_FAKE_BODY" "- CLI 범위"
+}
+
+test_create_ai_issue_flags_override_file_when_file_is_last() {
+  : > "$GH_FAKE_LOG"
+
+  "$repo_root/scripts/create-ai-issue.sh" \
+    --title "[AI] Late file override check" \
+    --purpose "앞선 CLI 목적이 우선한다." \
+    --criteria "앞선 CLI 기준" \
+    --scope-include "앞선 CLI 범위" \
+    --from-file "$repo_root/tests/fixtures/ai-issue.yml" >"$tmpdir/create-late-file.out"
+
+  assert_contains "$GH_FAKE_LOG" "--title [AI] Late file override check"
+  assert_contains "$GH_FAKE_BODY" "앞선 CLI 목적이 우선한다."
+  assert_contains "$GH_FAKE_BODY" "- [ ] 앞선 CLI 기준"
+  assert_contains "$GH_FAKE_BODY" "- 앞선 CLI 범위"
+}
+
 test_list_ready_ai_issues() {
   "$repo_root/scripts/list-ready-ai-issues.sh" >"$tmpdir/list.out"
 
@@ -112,6 +158,9 @@ test_list_ready_ai_issues() {
 test_create_ai_issue
 test_create_requires_required_fields
 test_create_rejects_empty_required_values
+test_create_ai_issue_from_file
+test_create_ai_issue_flags_override_file
+test_create_ai_issue_flags_override_file_when_file_is_last
 test_list_ready_ai_issues
 
 echo "github issue tool tests passed"

@@ -93,7 +93,9 @@ copy_tree "memory"
 copy_tree "scripts"
 copy_tree "skills"
 copy_tree "templates"
+copy_tree "docs"
 copy_file "$repo_root/ai-os.project.example.yml" "$target/ai-os.project.example.yml"
+copy_file "$repo_root/AI_OS_VERSION" "$target/AI_OS_VERSION"
 
 init_args=(
   "$repo_root/scripts/init-ai-os.sh"

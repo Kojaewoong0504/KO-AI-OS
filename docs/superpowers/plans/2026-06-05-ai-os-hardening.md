@@ -12,10 +12,10 @@
 
 ## Tasks
 
-- [ ] Add failing tests for labels, smoke checks, file-based issue creation, and bootstrap version copying.
-- [ ] Add label definitions and label sync workflow.
-- [ ] Extend `create-ai-issue.sh` with `--from-file`.
-- [ ] Add smoke-test script and GitHub smoke test guide.
-- [ ] Add MCP protocol docs and version metadata.
-- [ ] Update bootstrap, README, and verifier.
-- [ ] Run all verification and commit.
+- [x] Add failing tests for labels, smoke checks, file-based issue creation, and bootstrap version copying.
+- [x] Add label definitions and label sync workflow.
+- [x] Extend `create-ai-issue.sh` with `--from-file`.
+- [x] Add smoke-test script and GitHub smoke test guide.
+- [x] Add MCP protocol docs and version metadata.
+- [x] Update bootstrap, README, and verifier.
+- [x] Run all verification and commit.

@@ -1,0 +1,63 @@
+name: AI OS Label Sync
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - ".github/labels.yml"
+      - ".github/workflows/label-sync.yml"
+
+jobs:
+  upsert-labels:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+
+    steps:
+      - name: Upsert AI OS labels
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const labels = [
+              {
+                name: 'ai-task',
+                color: '6f42c1',
+                description: 'AI agent task',
+              },
+              {
+                name: 'ready-for-ai',
+                color: '0e8a16',
+                description: 'Validated and ready for AI work',
+              },
+              {
+                name: 'needs-clarification',
+                color: 'd93f0b',
+                description: 'Missing required task context',
+              },
+              {
+                name: 'blocked',
+                color: 'b60205',
+                description: 'Blocked by external dependency or decision',
+              },
+            ];
+
+            for (const label of labels) {
+              try {
+                await github.rest.issues.updateLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  name: label.name,
+                  color: label.color,
+                  description: label.description,
+                });
+              } catch (error) {
+                if (error.status !== 404) throw error;
+                await github.rest.issues.createLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  name: label.name,
+                  color: label.color,
+                  description: label.description,
+                });
+              }
+            }

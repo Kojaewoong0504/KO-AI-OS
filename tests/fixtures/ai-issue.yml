@@ -1,0 +1,12 @@
+title: "[AI] Add file based issue creation"
+purpose: "파일 입력으로 GitHub 이슈를 만들 수 있게 한다."
+criteria:
+  - "YAML draft에서 수락 기준을 읽는다."
+  - "CLI 플래그가 파일 값을 덮어쓴다."
+scope_include:
+  - "create-ai-issue.sh"
+scope_exclude:
+  - "GitHub MCP 서버 구현"
+constraints: "기존 CLI 플래그 동작 유지"
+context: "scripts/create-ai-issue.sh"
+expected_output: "스크립트 변경과 테스트"
