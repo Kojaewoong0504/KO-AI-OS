@@ -56,9 +56,12 @@ skills/
 scripts/
 ├── bootstrap-ai-os.sh       # 기존 프로젝트에 AI OS 템플릿 설치
 ├── create-ai-issue.sh       # 대화 내용을 ai-task 이슈로 등록
+├── generate-issue-draft.sh  # 대화 내용을 issue.yml 초안으로 저장
 ├── init-ai-os.sh            # ai-os.project.yml로 AGENTS.md 생성
+├── live-smoke-github-issue.sh # 실제 GitHub 이슈/Actions 점검
 ├── list-ready-ai-issues.sh  # ready-for-ai 작업 큐 조회
 ├── smoke-test-github-setup.sh # GitHub 설정 정적 점검
+├── upgrade-ai-os.sh         # 기존 설치본을 최신 템플릿 파일로 갱신
 └── verify-work-queue.sh     # 작업 큐 계약 검증
 
 templates/
@@ -127,6 +130,13 @@ GitHub MCP나 Connector가 연결된 환경에서는 같은 본문 형식과 라
 파일로 이슈 초안을 넘길 수도 있습니다.
 
 ```bash
+scripts/generate-issue-draft.sh \
+  --title "[AI] 작업 제목" \
+  --purpose "이 작업의 목적" \
+  --criteria "완료 조건" \
+  --scope-include "포함 범위" \
+  --output issue.yml
+
 scripts/create-ai-issue.sh --from-file issue.yml
 ```
 
@@ -160,6 +170,14 @@ scripts/bootstrap-ai-os.sh --profile ai-os.project.yml --target /path/to/project
 
 기존 파일은 기본적으로 보존합니다. 덮어쓰려면 `--force`를 명시합니다.
 
+이미 설치된 프로젝트를 최신 템플릿 파일로 갱신하려면 upgrade 스크립트를 사용합니다.
+
+```bash
+scripts/upgrade-ai-os.sh --target /path/to/project
+```
+
+`harness/ai-rules.md`처럼 프로젝트별로 생성되는 파일은 덮어쓰지 않습니다.
+
 ## GitHub 설정 점검
 
 로컬 정적 점검:
@@ -169,6 +187,12 @@ scripts/smoke-test-github-setup.sh --repo .
 ```
 
 실제 GitHub Actions 확인 절차는 `docs/github-smoke-test.md`를 따릅니다.
+
+원격 저장소에서 실제 이슈 pre-hook까지 확인하려면:
+
+```bash
+scripts/live-smoke-github-issue.sh --repo OWNER/REPO
+```
 
 ### Post-hook (이슈 닫을 때)
 

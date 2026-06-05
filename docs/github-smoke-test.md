@@ -30,3 +30,11 @@ is:issue is:open label:ai-task label:ready-for-ai -label:needs-clarification -la
 ```
 
 Live checks require GitHub Actions permissions and repository issue permissions.
+
+Automated live smoke test:
+
+```bash
+scripts/live-smoke-github-issue.sh --repo OWNER/REPO
+```
+
+The script creates a temporary complete `ai-task` issue, waits for `ready-for-ai`, and closes the issue.

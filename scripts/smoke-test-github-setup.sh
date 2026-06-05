@@ -43,8 +43,11 @@ required_files=(
   "harness/github-issue-protocol.md"
   "harness/github-mcp-protocol.md"
   "scripts/create-ai-issue.sh"
+  "scripts/generate-issue-draft.sh"
+  "scripts/live-smoke-github-issue.sh"
   "scripts/list-ready-ai-issues.sh"
   "scripts/bootstrap-ai-os.sh"
+  "scripts/upgrade-ai-os.sh"
   "AI_OS_VERSION"
 )
 

@@ -30,6 +30,7 @@ test_label_contract_files_exist() {
 test_smoke_test_files_exist_and_pass() {
   test -f "$repo_root/docs/github-smoke-test.md"
   test -x "$repo_root/scripts/smoke-test-github-setup.sh"
+  test -x "$repo_root/scripts/live-smoke-github-issue.sh"
 
   "$repo_root/scripts/smoke-test-github-setup.sh" --repo "$repo_root" >"$tmpdir/smoke.out"
   assert_contains "$tmpdir/smoke.out" "github setup smoke test passed"

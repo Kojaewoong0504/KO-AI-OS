@@ -1,0 +1,20 @@
+# Local AI OS runtime/state
+.omx/
+.worktrees/
+worktrees/
+
+# Local project profiles and issue drafts
+ai-os.project.yml
+issue.yml
+*.local.yml
+
+# Temporary install/check outputs
+tmp-ai-os/
+tmp/
+
+# Agent planning artifacts kept out of the reusable template
+docs/superpowers/
+
+# OS/editor noise
+.DS_Store
+*.swp
